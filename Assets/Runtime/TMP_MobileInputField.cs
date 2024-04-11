@@ -1,19 +1,34 @@
 using System;
 using System.Collections;
 using System.Globalization;
+using TMPro;
 using UnityEngine;
 using NiceJson;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace UMI {
 
     /// <summary>
-    /// Wrapper for Unity InputField
-    /// Add this component on your InputField
+    /// Content type
     /// </summary>
-    [RequireComponent(typeof(InputField))]
-    public class MobileInputField : MobileInputReceiver {
+    public enum InputContentType {
+        Standard,
+        Autocorrected,
+        IntegerNumber,
+        DecimalNumber,
+        Alphanumeric,
+        Name,
+        EmailAddress,
+        Password,
+        Pin
+    }
+
+    /// <summary>
+    /// Wrapper for Unity TMP_InputField
+    /// Add this component on your TMP_InputField
+    /// </summary>
+    [RequireComponent(typeof(TMP_InputField))]
+    public class TMP_MobileInputField : MobileInputReceiver {
 
         /// <summary>
         /// Config structure
@@ -200,12 +215,12 @@ namespace UMI {
         /// <summary>
         /// InputField object
         /// </summary>
-        InputField _inputObject = null;
+        TMP_InputField _inputObject = null;
 
         /// <summary>
         /// Text object from _inputObject
         /// </summary>
-        Text _inputObjectText = null;
+        TMP_Text _inputObjectText = null;
 
         /// <summary>
         /// Set focus on create flag
@@ -241,7 +256,7 @@ namespace UMI {
         /// Constructor
         /// </summary>
         void Awake() {
-            _inputObject = GetComponent<InputField>();
+            _inputObject = GetComponent<TMP_InputField>();
             if ((object)_inputObject == null) {
 #if UMI_DEBUG
                 Debug.LogError($"[UMI] no found InputField for {this.name} MobileInput");
@@ -249,7 +264,6 @@ namespace UMI {
                 throw new MissingComponentException();
             }
             _inputObjectText = _inputObject.textComponent;
-            _inputObject.shouldHideMobileInput = true;
         }
 
         /// <summary>
@@ -314,7 +328,7 @@ namespace UMI {
         /// <summary>
         /// Current InputField for external access
         /// </summary>
-        public InputField inputField {
+        public TMP_InputField InputField {
             get {
                 return _inputObject;
             }
@@ -398,7 +412,7 @@ namespace UMI {
         /// Prepare config
         /// </summary>
         void PrepareNativeEdit() {
-            var placeHolder = _inputObject.placeholder.GetComponent<Text>();
+            var placeHolder = _inputObject.placeholder.GetComponent<TextMeshProUGUI>();
             _config.Placeholder = placeHolder.text;
             _config.PlaceholderColor = placeHolder.color;
             _config.CharacterLimit = _inputObject.characterLimit;
@@ -409,7 +423,7 @@ namespace UMI {
             _config.Align = _inputObjectText.alignment.ToString();
             _config.ContentType = _inputObject.contentType.ToString();
             _config.BackgroundColor = BackgroundColor;
-            _config.Multiline = _inputObject.lineType != InputField.LineType.SingleLine;
+            _config.Multiline = _inputObject.lineType != TMP_InputField.LineType.SingleLine;
             _config.KeyboardType = _inputObject.keyboardType.ToString();
             _config.InputType = _inputObject.inputType.ToString();
         }
@@ -494,7 +508,6 @@ namespace UMI {
         /// </summary>
         /// <param name="data">JSON</param>
         IEnumerator SendDataProcess(JsonObject data) {
-            Debug.LogError(data.ToJsonString());
             yield return WaitForEndOfFrame;
             string msg = data["msg"];
             if (msg.Equals(TEXT_CHANGE)) {

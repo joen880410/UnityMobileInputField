@@ -173,7 +173,7 @@ namespace UMI {
         /// <summary>
         /// Flag to check init state
         /// </summary>
-        static bool _isInited = false;
+        static bool _isInited => _instance != null;
 
 #if UNITY_IOS
         /// <summary>
@@ -371,7 +371,7 @@ namespace UMI {
         /// <summary>
         /// Init plugin
         /// </summary>
-        public static void Init() {
+        static MobileInput() {
             if (_isInited) {
 #if UMI_DEBUG
                 Debug.LogError($"[UMI] already inited");
@@ -387,8 +387,7 @@ namespace UMI {
                 PlayerPrefs.SetInt(INIT_KEY, 1);
                 PlayerPrefs.Save();
             }
-            var instance = new GameObject();
-            instance.name = PLUGIN_NAME;
+            var instance = new GameObject(PLUGIN_NAME);
             instance.AddComponent<MobileInput>();
             DontDestroyOnLoad(instance);
             var data = new JsonObject();
@@ -397,7 +396,7 @@ namespace UMI {
             data["debug"] = false;
 #if UMI_DEBUG
             data["debug"] = true;
-#endif            
+#endif
 #if UNITY_ANDROID
             using (var plugin = new AndroidJavaClass(PLUGIN_PACKAGE)) {
                 plugin.CallStatic("init", data.ToJsonString());
@@ -427,7 +426,9 @@ namespace UMI {
         /// Check screen scale factor (iOS)
         /// </summary>
         public static float GetScreenScale() {
-#if UNITY_ANDROID
+#if UNITY_EDITOR
+            return 0;
+#elif UNITY_ANDROID
             return 1f;
 #elif UNITY_IOS
             return scaleFactor();

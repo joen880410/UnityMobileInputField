@@ -43,6 +43,9 @@ public class Chat : MonoBehaviour {
     [SerializeField]
     MobileInputField MultiInput = null;
 
+    [SerializeField]
+    TMP_MobileInputField TMP_MultiInput = null;
+
     /// <summary>
     /// Link to list container
     /// </summary>
